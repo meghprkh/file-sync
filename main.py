@@ -5,10 +5,15 @@ from os import listdir
 import os.path as op
 import mimetypes
 import re
+import hashlib
+
 
 mypath = '.'
 shared_files = []
 shared_files = [f for f in listdir(mypath) if op.isfile(op.join(mypath, f))]
+
+
+############## List Files ##############
 
 def prettyprint(data):
     col_width = max(len(word) for row in data for word in row) + 2  # padding
@@ -32,6 +37,28 @@ def listFiles(flag, args):
         table.append([f, str(op.getsize(fpath)), str(time), getType(fpath)])
     prettyprint(table)
 
+
+
+############## Hash Files ##############
+
+def getmd5(fpath):
+    with open(fpath, 'rb') as fh:
+        m = hashlib.md5()
+        while True:
+            data = fh.read(8192)
+            if not data:
+                break
+            m.update(data)
+        return m.hexdigest()
+
+def getUpdateDetails(fpath):
+    return (getmd5(fpath), op.getmtime(fpath))
+
+
+############## Main ##############
+
 if __name__ == '__main__':
     if sys.argv[1] == 'index':
         listFiles(sys.argv[2], sys.argv[3:])
+    elif sys.argv[1] == 'hash':
+        print(getUpdateDetails(sys.argv[2]))
