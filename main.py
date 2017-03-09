@@ -4,6 +4,7 @@ import sys
 from os import listdir
 import os.path as op
 import mimetypes
+import re
 
 mypath = '.'
 shared_files = []
@@ -21,7 +22,14 @@ def listFiles(flag, args):
     table = [['Name', 'Type', 'Timestamp', 'Type']]
     for f in shared_files:
         fpath = op.join(mypath, f)
-        table.append([f, str(op.getsize(fpath)), str(op.getmtime(fpath)), getType(fpath)])
+        time = op.getmtime(fpath)
+        if flag == 'shortlist':
+            if time < float(args[0]) or time > float(args[1]):
+                continue
+        elif flag == 'regex':
+            if not re.fullmatch('.*' + args[0], f):
+                continue
+        table.append([f, str(op.getsize(fpath)), str(time), getType(fpath)])
     prettyprint(table)
 
 if __name__ == '__main__':
