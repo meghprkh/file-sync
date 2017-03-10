@@ -6,6 +6,8 @@ import os.path as op
 import mimetypes
 import re
 import hashlib
+import struct
+import socket
 
 
 mypath = '.'
@@ -55,10 +57,36 @@ def getUpdateDetails(fpath):
     return (getmd5(fpath), op.getmtime(fpath))
 
 
+
+############## Communication ##############
+
+def sendCommand(cmd, arg):
+    sock = socket.socket()
+    sock.connect((host, port))
+    if cmd == 1:   # index
+        pass
+    elif cmd == 2: # hash
+        pass
+    elif cmd == 3: # download
+        sock.send(struct.pack('II', 3, sys.getsizeof(arg)))
+        sock.send(arg.encode())
+    sock.close()
+
+
+
+
 ############## Main ##############
 
 if __name__ == '__main__':
-    if sys.argv[1] == 'index':
-        listFiles(sys.argv[2], sys.argv[3:])
-    elif sys.argv[1] == 'hash':
-        print(getUpdateDetails(sys.argv[2]))
+    port = 60000
+    host = ""
+
+    while True:
+        cmd = input('>> ')
+        cmd = cmd.split(' ')
+        if cmd[0] == 'index':
+            pass
+        elif cmd[0] == 'hash':
+            pass
+        elif cmd[0] == 'download':
+            sendCommand(3, cmd[-1])
