@@ -10,7 +10,7 @@ import struct
 import socket
 
 
-mypath = '.'
+mypath = './files_client/'
 shared_files = []
 shared_files = [f for f in listdir(mypath) if op.isfile(op.join(mypath, f))]
 
@@ -58,6 +58,19 @@ def getUpdateDetails(fpath):
 
 
 
+############## Client functions ##############
+
+def downloadFile(fname, sock):
+    fpath = mypath + fname
+    with open(fpath, 'wb') as f:
+        while True:
+            data = sock.recv(1024)
+            if not data:
+                break
+            # write data to a file
+            f.write(data)
+
+
 ############## Communication ##############
 
 def sendCommand(cmd, arg):
@@ -70,6 +83,7 @@ def sendCommand(cmd, arg):
     elif cmd == 3: # download
         sock.send(struct.pack('II', 3, sys.getsizeof(arg)))
         sock.send(arg.encode())
+        downloadFile(arg, sock)
     sock.close()
 
 

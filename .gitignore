@@ -110,3 +110,10 @@ ENV/
 .ropeproject
 
 # End of https://www.gitignore.io/api/python,linux
+
+
+files_client/*
+!files_client/.keep
+
+files_server/*
+!files_server/testdata
