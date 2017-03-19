@@ -6,6 +6,7 @@ from os import listdir
 import os.path as op
 import mimetypes
 import re
+import hashlib
 
 mypath = './files_server/'
 
@@ -15,6 +16,13 @@ host = ""
 
 s.bind((host, port))
 s.listen(5)
+
+def prettyprint(data):
+    stru = ''
+    col_width = max(len(word) for row in data for word in row) + 2  # padding
+    for row in data:
+        stru += "".join(word.ljust(col_width) for word in row) + '\n'
+    return stru
 
 def sendFile(fname, conn):
     fpath = mypath + fname
@@ -27,13 +35,6 @@ def sendFile(fname, conn):
 
 
 def sendIndex(flag, args, conn):
-    def prettyprint(data):
-        stru = ''
-        col_width = max(len(word) for row in data for word in row) + 2  # padding
-        for row in data:
-            stru += "".join(word.ljust(col_width) for word in row) + '\n'
-        return stru
-
     def getType(fpath):
         return mimetypes.guess_type(fpath)[0] or 'text/plain'
 
@@ -55,6 +56,32 @@ def sendIndex(flag, args, conn):
     conn.send(tosend.encode())
 
 
+def sendHash(flag, args, conn):
+    def getmd5(fpath):
+        with open(fpath, 'rb') as fh:
+            m = hashlib.md5()
+            while True:
+                data = fh.read(8192)
+                if not data:
+                    break
+                m.update(data)
+            return m.hexdigest()
+
+    def getUpdateDetails(fpath):
+        return (getmd5(fpath), op.getmtime(fpath))
+
+    shared_files = [f for f in listdir(mypath) if op.isfile(op.join(mypath, f))]
+    table = [['Name', 'Checksum', 'Timestamp']]
+    if flag == 'verify':
+        shared_files = [args[0]]
+    for f in shared_files:
+        fpath = op.join(mypath, f)
+        time = op.getmtime(fpath)
+        table.append([f, str(getmd5(fpath)), str(time)])
+
+    tosend = prettyprint(table)
+    conn.send(tosend.encode())
+
 
 def recvCommand():
     data = conn.recv(struct.calcsize('II'))
@@ -68,6 +95,11 @@ def recvCommand():
         sendIndex(flag, args, conn)
         pass
     elif cmd == 2: # hash
+        arg = conn.recv(argSize).decode().split(' ')
+        flag = arg[0]
+        args = arg[1:]
+        print(cmd, flag, args)
+        sendHash(flag, args, conn)
         pass
     elif cmd == 3: # download
         arg = conn.recv(argSize)

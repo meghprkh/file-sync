@@ -1,30 +1,11 @@
 #!/usr/bin/env python3
 
 import sys
-import os.path as op
-import hashlib
 import struct
 import socket
 
 
 mypath = './files_client/'
-
-
-############## Hash Files ##############
-
-def getmd5(fpath):
-    with open(fpath, 'rb') as fh:
-        m = hashlib.md5()
-        while True:
-            data = fh.read(8192)
-            if not data:
-                break
-            m.update(data)
-        return m.hexdigest()
-
-def getUpdateDetails(fpath):
-    return (getmd5(fpath), op.getmtime(fpath))
-
 
 
 ############## Client functions ##############
@@ -58,6 +39,9 @@ def sendCommand(cmd, arg):
         downloadIndex(sock)
         pass
     elif cmd == 2: # hash
+        sock.send(struct.pack('II', 2, sys.getsizeof(arg)))
+        sock.send(arg.encode())
+        downloadIndex(sock)
         pass
     elif cmd == 3: # download
         sock.send(struct.pack('II', 3, sys.getsizeof(arg)))
@@ -81,6 +65,7 @@ if __name__ == '__main__':
             sendCommand(1, cmd[1])
             pass
         elif cmd[0] == 'hash':
+            sendCommand(2, cmd[1])
             pass
         elif cmd[0] == 'download':
             sendCommand(3, cmd[1])
