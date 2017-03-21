@@ -29,6 +29,8 @@ class Client(Thread):
                 pass
             elif cmd[0] == 'download':
                 self.sendCommand(3, cmd[1])
+            elif cmd[0] == "exit":
+                break
 
     def sendCommand(self, cmd, arg, noprint = False):
         sock = socket.socket()
