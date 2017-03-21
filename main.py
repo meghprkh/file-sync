@@ -5,9 +5,11 @@ import struct
 import socket
 import json
 import utilities as util
+import os
 
-
-mypath = './files_client/'
+mypath = os.environ.get('dir') or './files_client/'
+host = os.environ.get('host') or ""
+port = int(os.environ.get('port') or 60000)
 
 
 ############## Client functions ##############
@@ -59,9 +61,6 @@ def sendCommand(cmd, arg):
 ############## Main ##############
 
 if __name__ == '__main__':
-    port = 60000
-    host = ""
-
     while True:
         cmd = input('>> ')
         cmd = cmd.split(' ', 1)

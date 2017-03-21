@@ -4,13 +4,12 @@ import socket
 import struct
 import utilities as util
 import json
+import os
 
-
-mypath = './files_server/'
-
-port = 60000
+mypath = os.environ.get('dir') or './files_server/'
+host = os.environ.get('host') or ""
+port = int(os.environ.get('port') or 60000)
 s = socket.socket()
-host = ""
 
 s.bind((host, port))
 s.listen(5)
