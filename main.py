@@ -47,7 +47,13 @@ def sendCommand(cmd, arg):
     if cmd == 1:   # index
         sock.send(struct.pack('II', 1, sys.getsizeof(arg)))
         sock.send(arg.encode())
+        print('# Server shared files')
         downloadIndex(sock)
+        print('# Client shared files')
+        arg = arg.split(' ')
+        flag = arg[0]
+        args = arg[1:]
+        util.prettyprint(util.listFiles(flag, args, mypath))
         pass
     elif cmd == 2: # hash
         sock.send(struct.pack('II', 2, sys.getsizeof(arg)))
