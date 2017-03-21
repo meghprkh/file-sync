@@ -17,7 +17,6 @@ s.listen(5)
 
 def sendFile(fname, conn):
     fpath = mypath + fname
-    conn.send(struct.pack('256s', util.getmd5(fpath).encode()))
     f = open(fpath, 'rb')
     l = f.read(1024)
     while (l):
