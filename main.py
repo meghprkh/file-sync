@@ -16,6 +16,7 @@ port = int(os.environ.get('port') or 60000)
 
 def downloadFile(fname, sock):
     fpath = mypath + fname
+    servermd5 = struct.unpack('256s', sock.recv(256))[0].decode()
     with open(fpath, 'wb') as f:
         while True:
             data = sock.recv(1024)
@@ -23,6 +24,10 @@ def downloadFile(fname, sock):
                 break
             # write data to a file
             f.write(data)
+    clientmd5 = util.getmd5(fpath)
+    print('server checksum', servermd5)
+    print('client checksum', clientmd5)
+    print('successful transfer?', servermd5.startswith(clientmd5))
 
 def downloadIndex(sock):
     stru = ''
