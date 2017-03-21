@@ -57,13 +57,15 @@ class Client(Thread):
             args = arg[1:]
             util.prettyprint(util.listFiles(flag, args, self.mypath))
         elif cmd == 2: # hash
-            print('# Server shared files')
+            if not noprint:
+                print('# Server shared files')
             retval = self.downloadIndex(sock, noprint)
-            print('# Client shared files')
-            arg = arg.split(' ')
-            flag = arg[0]
-            args = arg[1:]
-            util.prettyprint(util.listHash(flag, args, self.mypath))
+            if not noprint:
+                print('# Client shared files')
+                arg = arg.split(' ')
+                flag = arg[0]
+                args = arg[1:]
+                util.prettyprint(util.listHash(flag, args, self.mypath))
         elif cmd == 3: # download
             retval = self.downloadFile(arg, sock)
         sock.close()
