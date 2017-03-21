@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import sys
 import struct
 import socket
 import json
@@ -49,9 +48,10 @@ def downloadIndex(sock, noprint = False):
 def sendCommand(cmd, arg, noprint = False):
     sock = socket.socket()
     sock.connect((host, port))
+    s = bytes(arg, 'utf-8')
+    data = struct.pack("II%ds" % (len(s),), cmd, len(s), s)
+    sock.send(data)
     if cmd == 1:   # index
-        sock.send(struct.pack('II', 1, sys.getsizeof(arg)))
-        sock.send(arg.encode())
         print('# Server shared files')
         retval = downloadIndex(sock, noprint)
         print('# Client shared files')
@@ -61,13 +61,9 @@ def sendCommand(cmd, arg, noprint = False):
         util.prettyprint(util.listFiles(flag, args, mypath))
         pass
     elif cmd == 2: # hash
-        sock.send(struct.pack('II', 2, sys.getsizeof(arg)))
-        sock.send(arg.encode())
         retval = downloadIndex(sock, noprint)
         pass
     elif cmd == 3: # download
-        sock.send(struct.pack('II', 3, sys.getsizeof(arg)))
-        sock.send(arg.encode())
         retval = downloadFile(arg, sock)
     sock.close()
     return retval
