@@ -6,9 +6,8 @@ import json
 import utilities as util
 import os
 import os.path as op
-from threading import Thread
+from threading import Thread, Timer
 from server import Server
-import time
 
 
 class Client(Thread):
@@ -17,8 +16,9 @@ class Client(Thread):
         self.host = ""
         self.port = port
         self.mypath = mypath
-        self.lastSync = time.time()
-        self.autosync = False
+        self.autosync = True
+        self.syncThread = Timer(2, self.sync)
+        self.syncThread.start()
 
     def run(self):
         while True:
@@ -38,10 +38,6 @@ class Client(Thread):
             elif cmd[0] == "autosync":
                 self.autosync = not self.autosync
 
-            curTime = time.time()
-            if curTime - self.lastSync > 2 and self.autosync:
-                self.lastSync = curTime
-                self.sync()
 
     def sendCommand(self, cmd, arg, noprint = False):
         sock = socket.socket()
@@ -102,19 +98,33 @@ class Client(Thread):
         util.prettyprint(json.loads(stru))
 
     def sync(self):
-        print('Autosyncing')
+        self.syncThread = Timer(2, self.sync)
+        self.syncThread.start()
+        if not self.autosync:
+            return
+        didPrint = False
         sfiles = self.sendCommand(2, 'checkall', True)[1:]
         ofiles = [f for f in os.listdir(self.mypath) if op.isfile(op.join(self.mypath, f))]
         for r in sfiles:
             # print(r)
             fname = r[0]
+            shouldDownload = False
             if fname in ofiles:
                 hs = util.getUpdateDetails(self.mypath + fname)
                 if hs[0] != r[1]:
                     if hs[1] < r[2]:
-                        self.sendCommand(3, fname)
+                        shouldDownload = True
             else:
+                shouldDownload = True
+
+            if shouldDownload:
+                if not didPrint:
+                    print('Autosyncing')
+                    didPrint = True
                 self.sendCommand(3, fname)
+
+        if didPrint:
+            print('\n>> ', end='')
 
 
 ############## Main ##############
