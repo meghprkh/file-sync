@@ -6,11 +6,13 @@ import mimetypes
 import re
 import hashlib
 
-def prettyprint(data):
+def prettyprint(data, shouldPrint = True):
     stru = ''
     col_width = max(len(word) for row in data for word in row) + 2  # padding
     for row in data:
         stru += "".join(word.ljust(col_width) for word in row) + '\n'
+    if shouldPrint:
+        print(stru)
     return stru
 
 

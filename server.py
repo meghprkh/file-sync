@@ -3,6 +3,7 @@
 import socket
 import struct
 import utilities as util
+import json
 
 
 mypath = './files_server/'
@@ -27,13 +28,13 @@ def sendFile(fname, conn):
 
 def sendIndex(flag, args, conn):
     table = util.listFiles(flag, args, mypath)
-    tosend = util.prettyprint(table)
+    tosend = json.dumps(table)
     conn.send(tosend.encode())
 
 
 def sendHash(flag, args, conn):
     table = util.listHash(flag, args, mypath)
-    tosend = util.prettyprint(table)
+    tosend = json.dumps(table)
     conn.send(tosend.encode())
 
 

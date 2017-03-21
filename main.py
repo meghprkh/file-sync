@@ -3,6 +3,8 @@
 import sys
 import struct
 import socket
+import json
+import utilities as util
 
 
 mypath = './files_client/'
@@ -21,11 +23,13 @@ def downloadFile(fname, sock):
             f.write(data)
 
 def downloadIndex(sock):
+    stru = ''
     while True:
         data = sock.recv(1024)
         if not data:
             break
-        print(data.decode())
+        stru += data.decode()
+    util.prettyprint(json.loads(stru))
 
 
 ############## Communication ##############
