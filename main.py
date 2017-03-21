@@ -8,6 +8,7 @@ import os
 import os.path as op
 from threading import Thread
 from server import Server
+import time
 
 
 class Client(Thread):
@@ -16,6 +17,7 @@ class Client(Thread):
         self.host = ""
         self.port = port
         self.mypath = mypath
+        self.lastSync = time.time()
 
     def run(self):
         while True:
@@ -31,6 +33,11 @@ class Client(Thread):
                 self.sendCommand(3, cmd[1])
             elif cmd[0] == "exit":
                 break
+
+            curTime = time.time()
+            if curTime - self.lastSync > 2:
+                self.lastSync = curTime
+                self.sync()
 
     def sendCommand(self, cmd, arg, noprint = False):
         sock = socket.socket()
@@ -54,6 +61,7 @@ class Client(Thread):
         return retval
 
     def downloadFile(self, fname, sock):
+        print('Downloading ' + fname)
         fpath = self.mypath + fname
         with open(fpath, 'wb') as f:
             while True:
@@ -80,6 +88,21 @@ class Client(Thread):
         if noprint:
             return json.loads(stru)
         util.prettyprint(json.loads(stru))
+
+    def sync(self):
+        print('Autosyncing')
+        sfiles = self.sendCommand(2, 'checkall', True)[1:]
+        ofiles = [f for f in os.listdir(self.mypath) if op.isfile(op.join(self.mypath, f))]
+        for r in sfiles:
+            # print(r)
+            fname = r[0]
+            if fname in ofiles:
+                hs = util.getUpdateDetails(self.mypath + fname)
+                if hs[0] != r[1]:
+                    if hs[1] < r[2]:
+                        self.sendCommand(3, fname)
+            else:
+                self.sendCommand(3, fname)
 
 
 ############## Main ##############
