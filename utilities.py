@@ -25,9 +25,9 @@ def listFiles(flag, args, mypath):
     table = [['Name', 'Type', 'Timestamp', 'Type']]
     for f in shared_files:
         fpath = op.join(mypath, f)
-        time = op.getmtime(fpath)
+        time = getmtime(fpath)
         if flag == 'shortlist':
-            if time < float(args[0]) or time > float(args[1]):
+            if time < int(args[0]) or time > int(args[1]):
                 continue
         elif flag == 'regex':
             if not re.fullmatch('.*' + args[0], f):
@@ -48,8 +48,11 @@ def getmd5(fpath):
             m.update(data)
         return m.hexdigest()
 
+def getmtime(fpath):
+    return int(op.getmtime(fpath))
+
 def getUpdateDetails(fpath):
-    return (getmd5(fpath), op.getmtime(fpath))
+    return (getmd5(fpath), getmtime(fpath))
 
 
 def listHash(flag, args, mypath):
@@ -59,7 +62,7 @@ def listHash(flag, args, mypath):
         shared_files = [args[0]]
     for f in shared_files:
         fpath = op.join(mypath, f)
-        time = op.getmtime(fpath)
+        time = getmtime(fpath)
         table.append([f, str(getmd5(fpath)), str(time)])
 
     return table
