@@ -5,17 +5,9 @@ import struct
 import utilities as util
 import json
 import os
+from threading import Thread
 
-mypath = os.environ.get('dir') or './files_server/'
-host = os.environ.get('host') or ""
-port = int(os.environ.get('port') or 60000)
-s = socket.socket()
-
-s.bind((host, port))
-s.listen(5)
-
-
-def sendFile(fname, conn):
+def sendFile(fname, conn, mypath):
     fpath = mypath + fname
     f = open(fpath, 'rb')
     l = f.read(1024)
@@ -25,19 +17,19 @@ def sendFile(fname, conn):
     f.close()
 
 
-def sendIndex(flag, args, conn):
+def sendIndex(flag, args, conn, mypath):
     table = util.listFiles(flag, args, mypath)
     tosend = json.dumps(table)
     conn.send(tosend.encode())
 
 
-def sendHash(flag, args, conn):
+def sendHash(flag, args, conn, mypath):
     table = util.listHash(flag, args, mypath)
     tosend = json.dumps(table)
     conn.send(tosend.encode())
 
 
-def recvCommand():
+def recvCommand(conn, mypath):
     data = conn.recv(struct.calcsize('II'))
     cmd, argSize = struct.unpack('II', data)
     # print(cmd, argSize)
@@ -46,23 +38,34 @@ def recvCommand():
         flag = arg[0]
         args = arg[1:]
         print(cmd, flag, args)
-        sendIndex(flag, args, conn)
+        sendIndex(flag, args, conn, mypath)
         pass
     elif cmd == 2: # hash
         arg = conn.recv(argSize).decode().split(' ')
         flag = arg[0]
         args = arg[1:]
         print(cmd, flag, args)
-        sendHash(flag, args, conn)
+        sendHash(flag, args, conn, mypath)
         pass
     elif cmd == 3: # download
         arg = conn.recv(argSize)
         print(cmd, arg.decode())
-        sendFile(arg.decode(), conn)
+        sendFile(arg.decode(), conn, mypath)
 
-while True:
-    conn, addr = s.accept()
-    print('Got connection from', addr)
-    recvCommand()
-    print('Done sending')
-    conn.close()
+class Server(Thread):
+    def __init__(self, mypath = './files_server/', port = 60000):
+        # , mypath = './files_server', port = 60000
+        Thread.__init__(self)
+        self.mypath = mypath
+        host = os.environ.get('host') or ""
+        self.s = socket.socket()
+        self.s.bind((host, port))
+        self.s.listen(5)
+
+    def run(self):
+        while True:
+            conn, addr = self.s.accept()
+            print('Got connection from', addr)
+            recvCommand(conn, self.mypath)
+            print('Done sending')
+            conn.close()
