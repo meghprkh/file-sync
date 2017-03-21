@@ -18,6 +18,7 @@ class Client(Thread):
         self.port = port
         self.mypath = mypath
         self.lastSync = time.time()
+        self.autosync = False
 
     def run(self):
         while True:
@@ -33,9 +34,11 @@ class Client(Thread):
                 self.sendCommand(3, cmd[1])
             elif cmd[0] == "exit":
                 break
+            elif cmd[0] == "autosync":
+                self.autosync = not self.autosync
 
             curTime = time.time()
-            if curTime - self.lastSync > 2:
+            if curTime - self.lastSync > 2 and self.autosync:
                 self.lastSync = curTime
                 self.sync()
 
