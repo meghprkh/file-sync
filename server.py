@@ -37,19 +37,17 @@ def recvCommand(conn, mypath):
         arg = conn.recv(argSize).decode().split(' ')
         flag = arg[0]
         args = arg[1:]
-        print(cmd, flag, args)
+        # print(cmd, flag, args)
         sendIndex(flag, args, conn, mypath)
-        pass
     elif cmd == 2: # hash
         arg = conn.recv(argSize).decode().split(' ')
         flag = arg[0]
         args = arg[1:]
-        print(cmd, flag, args)
+        # print(cmd, flag, args)
         sendHash(flag, args, conn, mypath)
-        pass
     elif cmd == 3: # download
         arg = conn.recv(argSize)
-        print(cmd, arg.decode())
+        # print(cmd, arg.decode())
         sendFile(arg.decode(), conn, mypath)
 
 class Server(Thread):
@@ -65,7 +63,7 @@ class Server(Thread):
     def run(self):
         while True:
             conn, addr = self.s.accept()
-            print('Got connection from', addr)
+            # print('Got connection from', addr)
             recvCommand(conn, self.mypath)
-            print('Done sending')
+            # print('Done sending')
             conn.close()
