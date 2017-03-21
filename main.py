@@ -31,6 +31,7 @@ class Client(Thread):
                 self.sendCommand(2, cmd[1])
                 pass
             elif cmd[0] == 'download':
+                cmd = cmd[1].split(' ', 1)
                 self.sendCommand(3, cmd[1])
             elif cmd[0] == "exit":
                 break
