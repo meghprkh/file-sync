@@ -112,8 +112,8 @@ ENV/
 # End of https://www.gitignore.io/api/python,linux
 
 
-files_client/*
-!files_client/.keep
+dir2/*
+!dir2/.keep
 
-files_server/*
-!files_server/testdata
+dir1/*
+!dir1/testdata

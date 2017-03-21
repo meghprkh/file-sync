@@ -84,9 +84,13 @@ class Client(Thread):
 
 if __name__ == '__main__':
     port = int(os.environ.get('port') or 60000)
+    port2 = port + 1 if port % 2 == 0 else port - 1
+    port2 = int(os.environ.get('port2') or port2)
+    diru = './dir1/' if port % 2 == 0 else './dir2/'
+    diru = os.environ.get('dir') or diru
 
-    server = Server()
-    client = Client()
+    server = Server(diru, port)
+    client = Client(diru, port2)
 
     server.start()
     client.start()
