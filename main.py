@@ -134,7 +134,10 @@ class Client(Thread):
         if not self.autosync:
             return
         didPrint = False
-        sfiles = self.sendCommand(2, 'checkall', True)[1:]
+        try:
+            sfiles = self.sendCommand(2, 'checkall', True)[1:]
+        except:
+            return
         ofiles = util.getFiles(self.mypath)
         for r in sfiles:
             # print(r)
