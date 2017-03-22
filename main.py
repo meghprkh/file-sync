@@ -135,7 +135,7 @@ class Client(Thread):
                 if not didPrint:
                     print('Autosyncing')
                     didPrint = True
-                self.sendCommand(3, fname)
+                self.sendCommand(3, 'TCP ' + fname)
 
         if didPrint:
             print('\n>> ', end='')
