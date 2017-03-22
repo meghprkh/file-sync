@@ -155,7 +155,7 @@ class Client(Thread):
             if fname in ofiles:
                 hs = util.getUpdateDetails(self.mypath + fname)
                 if hs[0] != r[1]:
-                    if hs[1] < r[2]:
+                    if hs[1] < int(r[2]):
                         shouldDownload = True
             else:
                 shouldDownload = True
