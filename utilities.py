@@ -7,6 +7,9 @@ import re
 import hashlib
 
 def prettyprint(data, shouldPrint = True):
+    if data == -1 and shouldPrint:
+        print('ERROR: File does not exist')
+        return
     stru = ''
     col_width = max(len(word) for row in data for word in row) + 2  # padding
     for row in data:
@@ -69,6 +72,8 @@ def listHash(flag, args, mypath):
     table = [['Name', 'Checksum', 'Timestamp']]
     if flag == 'verify':
         shared_files = [args[0]]
+        if not op.exists(args[0]):
+            return -1
     for f in shared_files:
         fpath = op.join(mypath, f)
         time = getmtime(fpath)
