@@ -88,7 +88,12 @@ class Client(Thread):
 
     def downloadFile(self, isUDP, fname, sock, size = 0):
         print('Downloading ' + fname)
-        fpath = self.mypath + fname
+        fpath = op.join(self.mypath, fname)
+        diru = fpath.rsplit("/", 1)
+        if len(diru) == 2:
+            diru = diru[0]
+            if not op.exists(diru):
+                os.makedirs(diru)
         perm = sock.recv(4)
         perm, = struct.unpack('I', perm)
         with open(fpath, 'wb') as f:
@@ -129,7 +134,7 @@ class Client(Thread):
             return
         didPrint = False
         sfiles = self.sendCommand(2, 'checkall', True)[1:]
-        ofiles = [f for f in os.listdir(self.mypath) if op.isfile(op.join(self.mypath, f))]
+        ofiles = util.getFiles(self.mypath)
         for r in sfiles:
             # print(r)
             fname = r[0]

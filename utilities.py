@@ -15,6 +15,13 @@ def prettyprint(data, shouldPrint = True):
         print(stru)
     return stru
 
+def getFiles(mypath):
+    shared_files = [f for f in listdir(mypath) if op.isfile(op.join(mypath, f))]
+    for f in listdir(mypath):
+        if op.isdir(op.join(mypath, f)):
+            rec_files = getFiles(op.join(mypath, f))
+            shared_files += [op.join(f, fr) for fr in rec_files]
+    return shared_files
 
 def listFiles(flag, args, mypath):
     def getType(fpath):
@@ -56,7 +63,7 @@ def getUpdateDetails(fpath):
 
 
 def listHash(flag, args, mypath):
-    shared_files = [f for f in listdir(mypath) if op.isfile(op.join(mypath, f))]
+    shared_files = getFiles(mypath)
     table = [['Name', 'Checksum', 'Timestamp']]
     if flag == 'verify':
         shared_files = [args[0]]
