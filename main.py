@@ -11,10 +11,11 @@ from server import Server
 
 
 class Client(Thread):
-    def __init__(self, mypath = './files_client/', port = 60000):
+    def __init__(self, mypath = './files_client/', port = 60000, ownServerPort = 60001):
         Thread.__init__(self)
         self.host = ""
         self.port = port
+        self.ownServerPort = ownServerPort
         self.mypath = mypath
         self.autosync = True
         self.syncThread = Timer(2, self.sync)
@@ -33,6 +34,8 @@ class Client(Thread):
             elif cmd[0] == 'download':
                 self.sendCommand(3, cmd[1])
             elif cmd[0] == "exit":
+                self.sendCommand(4, '')
+                self.syncThread.cancel()
                 break
             elif cmd[0] == "autosync":
                 self.autosync = not self.autosync
@@ -40,10 +43,15 @@ class Client(Thread):
 
     def sendCommand(self, cmd, arg, noprint = False):
         sock = socket.socket()
-        sock.connect((self.host, self.port))
+        if cmd == 4:
+            port = self.ownServerPort
+        else:
+            port = self.port
+        sock.connect((self.host, port))
         s = bytes(arg, 'utf-8')
         data = struct.pack("II%ds" % (len(s),), cmd, len(s), s)
         sock.send(data)
+        retval = ''
         if cmd == 1:   # index
             print('# Server shared files')
             retval = self.downloadIndex(sock, noprint)
@@ -154,7 +162,7 @@ if __name__ == '__main__':
     diru = os.environ.get('dir') or diru
 
     server = Server(diru, port)
-    client = Client(diru, port2)
+    client = Client(diru, port2, port)
 
     server.start()
     client.start()

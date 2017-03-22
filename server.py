@@ -46,6 +46,8 @@ def recvCommand(conn, mypath, sudp = None):
     data = conn.recv(struct.calcsize('II'))
     cmd, argSize = struct.unpack('II', data)
     # print(cmd, argSize)
+    if cmd == 4:
+        return 'exit'
     if cmd == 1:   # index
         arg = conn.recv(argSize).decode().split(' ')
         flag = arg[0]
@@ -85,6 +87,9 @@ class Server(Thread):
         while True:
             conn, addr = self.s.accept()
             # print('Got connection from', addr)
-            recvCommand(conn, self.mypath, self.sudp)
+            if recvCommand(conn, self.mypath, self.sudp) == 'exit':
+                break
             # print('Done sending')
             conn.close()
+        self.s.close()
+        self.sudp.close()
