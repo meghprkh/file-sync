@@ -31,7 +31,6 @@ class Client(Thread):
                 self.sendCommand(2, cmd[1])
                 pass
             elif cmd[0] == 'download':
-                cmd = cmd[1].split(' ', 1)
                 self.sendCommand(3, cmd[1])
             elif cmd[0] == "exit":
                 break
@@ -64,20 +63,35 @@ class Client(Thread):
                 args = arg[1:]
                 util.prettyprint(util.listHash(flag, args, self.mypath))
         elif cmd == 3: # download
-            retval = self.downloadFile(arg, sock)
+            arg = arg.split(' ')
+            isUDP = arg[0] == 'UDP'
+            fname = arg[1]
+            size = 0
+            if isUDP:
+                sock.close()
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.connect((self.host, self.port))
+                sock.send(fname.encode())
+                size = sock.recv(4)
+                size, = struct.unpack('I', size)
+            retval = self.downloadFile(isUDP, fname, sock, size)
         sock.close()
         return retval
 
-    def downloadFile(self, fname, sock):
+    def downloadFile(self, isUDP, fname, sock, size = 0):
         print('Downloading ' + fname)
         fpath = self.mypath + fname
         with open(fpath, 'wb') as f:
+            recvtillnow = 0
             while True:
                 data = sock.recv(1024)
                 if not data:
                     break
                 # write data to a file
                 f.write(data)
+                recvtillnow += 1024
+                if recvtillnow > size and isUDP:
+                    break
         clientmd5 = util.getmd5(fpath)
         updatedetails = self.sendCommand(2, 'verify ' + fname, True)[1]
         servermd5 = updatedetails[1]
