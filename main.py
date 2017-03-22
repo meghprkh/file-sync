@@ -81,6 +81,8 @@ class Client(Thread):
     def downloadFile(self, isUDP, fname, sock, size = 0):
         print('Downloading ' + fname)
         fpath = self.mypath + fname
+        perm = sock.recv(4)
+        perm, = struct.unpack('I', perm)
         with open(fpath, 'wb') as f:
             recvtillnow = 0
             while True:
@@ -96,6 +98,7 @@ class Client(Thread):
         updatedetails = self.sendCommand(2, 'verify ' + fname, True)[1]
         servermd5 = updatedetails[1]
         os.utime(fpath, (op.getatime(fpath), int(updatedetails[2])))
+        os.chmod(fpath, perm)
         print('server checksum', servermd5)
         print('client checksum', clientmd5)
         print('successful transfer?', servermd5.startswith(clientmd5))

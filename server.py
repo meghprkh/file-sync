@@ -13,6 +13,12 @@ def sendFile(fname, conn, mypath, udpAddr = None):
     if udpAddr:
         size = op.getsize(fpath)
         conn.sendto(struct.pack('I', size), udpAddr)
+    perm = os.stat(fpath).st_mode
+    perm = struct.pack('I', perm)
+    if udpAddr:
+        conn.sendto(perm, udpAddr)
+    else:
+        conn.send(perm)
     f = open(fpath, 'rb')
     l = f.read(1024)
     while (l):
