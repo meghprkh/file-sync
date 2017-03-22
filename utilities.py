@@ -25,10 +25,12 @@ def getFiles(mypath):
 
 def listFiles(flag, args, mypath):
     def getType(fpath):
+        if op.isdir(fpath):
+            return 'directory'
         return mimetypes.guess_type(fpath)[0] or 'text/plain'
 
     ############## List Files ##############
-    shared_files = [f for f in listdir(mypath) if op.isfile(op.join(mypath, f))]
+    shared_files = listdir(mypath)
     table = [['Name', 'Type', 'Timestamp', 'Type']]
     for f in shared_files:
         fpath = op.join(mypath, f)
