@@ -115,6 +115,7 @@ class Client(Thread):
         print('server checksum', servermd5)
         print('client checksum', clientmd5)
         print('successful transfer?', servermd5.startswith(clientmd5))
+        print('Size', op.getsize(fpath), '\tTimestamp', util.getmtime(fpath))
 
     def downloadIndex(self, sock, noprint = False):
         stru = ''
