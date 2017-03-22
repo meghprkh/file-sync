@@ -10,9 +10,12 @@ from threading import Thread
 
 def sendFile(fname, conn, mypath, udpAddr = None):
     fpath = mypath + fname
+    size = op.getsize(fpath)
+    size = struct.pack('I', size)
     if udpAddr:
-        size = op.getsize(fpath)
-        conn.sendto(struct.pack('I', size), udpAddr)
+        conn.sendto(size, udpAddr)
+    else:
+        conn.send(size)
     perm = os.stat(fpath).st_mode
     perm = struct.pack('I', perm)
     if udpAddr:

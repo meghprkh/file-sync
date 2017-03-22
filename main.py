@@ -74,20 +74,19 @@ class Client(Thread):
             arg = arg.split(' ')
             isUDP = arg[0] == 'UDP'
             fname = arg[1]
-            size = 0
             if isUDP:
                 sock.close()
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 sock.connect((self.host, self.port))
                 sock.send(fname.encode())
-                size = sock.recv(4)
-                size, = struct.unpack('I', size)
-            retval = self.downloadFile(isUDP, fname, sock, size)
+            retval = self.downloadFile(isUDP, fname, sock)
         sock.close()
         return retval
 
-    def downloadFile(self, isUDP, fname, sock, size = 0):
+    def downloadFile(self, isUDP, fname, sock):
         print('Downloading ' + fname)
+        size = sock.recv(4)
+        size, = struct.unpack('I', size)
         fpath = op.join(self.mypath, fname)
         diru = fpath.rsplit("/", 1)
         if len(diru) == 2:
