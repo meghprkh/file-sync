@@ -23,7 +23,11 @@ class Client(Thread):
 
     def run(self):
         while True:
-            cmd = input('>> ')
+            try:
+                cmd = input('>> ')
+            except EOFError:
+                print('exit')
+                cmd = 'exit'
             cmd = cmd.split(' ', 1)
             if cmd[0] == 'index':
                 self.sendCommand(1, cmd[1])
