@@ -9,13 +9,18 @@ import os.path as op
 from threading import Thread
 
 def sendFile(fname, conn, mypath, udpAddr = None):
-    fpath = mypath + fname
-    size = op.getsize(fpath)
-    size = struct.pack('I', size)
+    fpath = op.join(mypath, fname)
+    if op.exists(fpath):
+        size = op.getsize(fpath)
+    else:
+        size = -1
+    size = struct.pack('i', size)
     if udpAddr:
         conn.sendto(size, udpAddr)
     else:
         conn.send(size)
+    if not op.exists(fpath):
+        return
     perm = os.stat(fpath).st_mode
     perm = struct.pack('I', perm)
     if udpAddr:

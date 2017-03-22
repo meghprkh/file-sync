@@ -86,7 +86,10 @@ class Client(Thread):
     def downloadFile(self, isUDP, fname, sock):
         print('Downloading ' + fname)
         size = sock.recv(4)
-        size, = struct.unpack('I', size)
+        size, = struct.unpack('i', size)
+        if size == -1:
+            print('ERROR: File does not exist')
+            return
         fpath = op.join(self.mypath, fname)
         diru = fpath.rsplit("/", 1)
         if len(diru) == 2:
