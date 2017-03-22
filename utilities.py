@@ -71,8 +71,8 @@ def listHash(flag, args, mypath):
     shared_files = getFiles(mypath)
     table = [['Name', 'Checksum', 'Timestamp']]
     if flag == 'verify':
-        shared_files = [args[0]]
-        if not op.exists(args[0]):
+        shared_files = [args]
+        if not op.exists(op.join(mypath, args)):
             return -1
     for f in shared_files:
         fpath = op.join(mypath, f)

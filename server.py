@@ -63,13 +63,16 @@ def recvCommand(conn, mypath, sudp = None):
         # print(cmd, flag, args)
         sendIndex(flag, args, conn, mypath)
     elif cmd == 2: # hash
-        arg = conn.recv(argSize).decode().split(' ')
+        arg = conn.recv(argSize).decode().split(' ', 1)
         flag = arg[0]
-        args = arg[1:]
+        try:
+            args = arg[1]
+        except:
+            args = None
         # print(cmd, flag, args)
         sendHash(flag, args, conn, mypath)
     elif cmd == 3: # download
-        arg = conn.recv(argSize).decode().split(' ')
+        arg = conn.recv(argSize).decode().split(' ', 1)
         flag = arg[0]
         fname = arg[1]
         # print(cmd, arg.decode())

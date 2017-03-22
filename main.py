@@ -70,12 +70,15 @@ class Client(Thread):
             retval = self.downloadIndex(sock, noprint)
             if not noprint:
                 print('# Client shared files')
-                arg = arg.split(' ')
+                arg = arg.split(' ', 1)
                 flag = arg[0]
-                args = arg[1:]
+                try:
+                    args = arg[1]
+                except:
+                    args = None
                 util.prettyprint(util.listHash(flag, args, self.mypath))
         elif cmd == 3: # download
-            arg = arg.split(' ')
+            arg = arg.split(' ', 1)
             isUDP = arg[0] == 'UDP'
             fname = arg[1]
             if isUDP:
